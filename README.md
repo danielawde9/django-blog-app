@@ -1,27 +1,54 @@
-# Django Blog App
 
-- [Django Blog App](#django-blog-app)
-- [Initial Start](#initial-start)
-- [Pattern in adding new pages](#pattern-in-adding-new-pages)
-  - [Templates](#templates)
-  - [Template Base](#template-base)
-  - [Template Home](#template-home)
-  - [Views](#views)
-  - [URLS](#urls)
-- [Static](#static)
-- [Git](#git)
-  - [Creating a new repository](#creating-a-new-repository)
-  - [Push an existing folder](#push-an-existing-folder)
-  - [Push an existing Git repository](#push-an-existing-git-repository)
-  - [If you want to remove folder form git and keep it locally](#if-you-want-to-remove-folder-form-git-and-keep-it-locally)
-  - [Global .gitignore for your machine](#global-gitignore-for-your-machine)
-  - [Generate SSH key](#generate-ssh-key)
-- [Heroku](#heroku)
-  - [Check `Pipfile` python required version](#check-pipfile-python-required-version)
-    - [Procfile](#procfile)
-  - [Heroku Deployment](#heroku-deployment)
+- [1. Initial Start](#1-initial-start)
+- [2. Custom Users App](#2-custom-users-app)
+  - [2.1. config/settings](#21-configsettings)
+  - [2.2. users/models.py](#22-usersmodelspy)
+  - [2.3. users/urls](#23-usersurls)
+  - [2.4. users/views](#24-usersviews)
+  - [2.5. users/forms.py](#25-usersformspy)
+  - [2.6. users/admin.py](#26-usersadminpy)
+- [3. Templates](#3-templates)
+  - [3.1. config/settings.py](#31-configsettingspy)
+  - [3.2. temlpates/base](#32-temlpatesbase)
+    - [3.2.1. temlpates/home](#321-temlpateshome)
+  - [3.3. templates/registration/login](#33-templatesregistrationlogin)
+  - [3.4. templates/signup](#34-templatessignup)
+  - [3.5. templates/registration/password_change_form](#35-templatesregistrationpassword_change_form)
+  - [3.6. templates/registration/password_change_done](#36-templatesregistrationpassword_change_done)
+  - [3.7. templates/registration/password_reset_form](#37-templatesregistrationpassword_reset_form)
+  - [3.8. templates/registration/password_reset_complete](#38-templatesregistrationpassword_reset_complete)
+  - [3.9. templates/registration/password_reset_confirm](#39-templatesregistrationpassword_reset_confirm)
+  - [3.10. templates/registration/password_reset_done](#310-templatesregistrationpassword_reset_done)
+    - [3.10.1. Email](#3101-email)
+  - [3.11. templates/registration/password_reset_email](#311-templatesregistrationpassword_reset_email)
+  - [3.12. config/urls](#312-configurls)
+- [4. Pages App](#4-pages-app)
+  - [4.1. Pattern in adding new pages](#41-pattern-in-adding-new-pages)
+  - [4.2. config/urls](#42-configurls)
+  - [4.3. pages/urls](#43-pagesurls)
+  - [4.4. pages/views](#44-pagesviews)
+  - [4.5. Adding bootstarp to templates html](#45-adding-bootstarp-to-templates-html)
+    - [4.5.1. config/settings](#451-configsettings)
+- [5. Articles App](#5-articles-app)
+  - [5.1. articles/models](#51-articlesmodels)
+  - [5.2. articles/admin](#52-articlesadmin)
+  - [5.3. articles/views](#53-articlesviews)
+- [6. Static](#6-static)
+- [7. Git](#7-git)
+  - [7.1. Creating a new repository](#71-creating-a-new-repository)
+  - [7.2. Push an existing folder](#72-push-an-existing-folder)
+  - [7.3. Push an existing Git repository](#73-push-an-existing-git-repository)
+  - [7.4. If you want to remove folder form git and keep it locally](#74-if-you-want-to-remove-folder-form-git-and-keep-it-locally)
+  - [7.5. Global .gitignore for your machine](#75-global-gitignore-for-your-machine)
+  - [7.6. Generate SSH key](#76-generate-ssh-key)
+- [8. Deployment](#8-deployment)
+  - [8.1. Django Deplyoment Checklist](#81-django-deplyoment-checklist)
+  - [8.2. Heroku](#82-heroku)
+    - [8.2.1. Procfile](#821-procfile)
+  - [8.3. Heroku Deployment](#83-heroku-deployment)
 
-# Initial Start
+
+# 1. Initial Start
 
 Create a folder, install django and run the shell
 
@@ -47,7 +74,7 @@ Run server
 after we’ve created our new custom user model before doing so given how tightly
 connected the user model is to the rest of Django.
 
-# Custom Users App
+# 2. Custom Users App
 
 Always use a **custom user model** for all new Django projects, using `AbstractUser` not `AbstractBaseUser`
 
@@ -60,7 +87,7 @@ Creating our custom user model requires four steps:
 
 Tell django about the new app `pages` and `users` by adding it to the bottom of `INSTALLED_APPS` in the `config/settings.py`
 
-## config/settings
+## 2.1. config/settings
 
     INSTALLED_APPS = [
 
@@ -74,7 +101,7 @@ Tell django about the new app `pages` and `users` by adding it to the bottom of 
 
     AUTH_USER_MODEL = 'users.CustomUser' # new
 
-## users/models.py
+## 2.2. users/models.py
 
 A model is the single, definitive source of information about your data. It contains the essential fields and behaviors
 of the data you’re storing. Generally, each model maps to a **single database table.**
@@ -98,7 +125,7 @@ We will “model” the characteristics of the data in our database.
 - null is database-related. When a field has null=True it can store a database entry as NULL , meaning no value.
 - blank is validation-related, if blank=True then a form will allow an empty value, whereas if blank=False then a value is required.
 
-## users/urls
+## 2.3. users/urls
 
 **Note** signup page from the templates needs to be created first before adding the views and the urls, i added it here to group them together
 
@@ -110,7 +137,7 @@ We will “model” the characteristics of the data in our database.
         path('signup/', SignUpView.as_view(), name='signup'),
     ]
 
-## users/views
+## 2.4. users/views
 
     from django.urls import reverse_lazy
     from django.views.generic import CreateView
@@ -127,7 +154,7 @@ We will “model” the characteristics of the data in our database.
 Why use reverse_lazy here instead of reverse ? The reason is that for all generic class- based views the URLs are not loaded when the file is imported, so we have to use the lazy form of reverse to load them later when they’re available.
 
 
-## users/forms.py
+## 2.5. users/forms.py
 
 create it first `touch users/forms.py`
 
@@ -153,7 +180,7 @@ coupled to the default User model. We will extend the existing UserAdmin class t
 use our new CustomUser model.
 
 
-## users/admin.py
+## 2.6. users/admin.py
 
     from django.contrib import admin
     from django.contrib.auth.admin import UserAdmin
@@ -182,7 +209,7 @@ make the migration
     (news) $ python manage.py createsuperuser
 
 
-# Templates
+# 3. Templates
 
 **Note** templates are ch 9 of the book and ch 10 of the git repo
 
@@ -198,7 +225,7 @@ Create a project-level directory called templates, and a home.html template file
 
 Add the settings.py directory of the template
 
-## config/settings.py
+## 3.1. config/settings.py
 
     TEMPLATES = [
     	{
@@ -211,7 +238,7 @@ Add the settings.py directory of the template
     LOGIN_REDIRECT_URL = 'home'
     LOGOUT_REDIRECT_URL = 'home'
 
-## temlpates/base
+## 3.2. temlpates/base
 
     <!-- temlpates/base.html -->
     <html>
@@ -229,7 +256,7 @@ Add the settings.py directory of the template
     </body>
     </html>
 
-### temlpates/home
+### 3.2.1. temlpates/home
 
 In our templates file home.html we can use the Django Templating Language’s for a loop to list all the objects in
 object_list Why **object_list** ? This is the name of the variable that ListView returns to us.
@@ -288,7 +315,7 @@ Adding user auth
 
     {% endblock content %}
 
-## templates/registration/login
+## 3.3. templates/registration/login
 
     <!-- templates/registration/login.html -->
 
@@ -312,7 +339,7 @@ paragraph <p> tags.
 - the btn class is added after the bootstrap cripy installation
 
 
-## templates/signup
+## 3.4. templates/signup
 
     <!-- templates/signup.html -->
 
@@ -335,7 +362,7 @@ paragraph <p> tags.
 
 **Note II** for a better form please install crispy form, check next chapter
 
-## templates/registration/password_change_form
+## 3.5. templates/registration/password_change_form
 Let’s customize these two password change pages so that they match the look and
 feel of our Newspaper site. Because Django already has created the views and URLs
 for us, we only need to add new templates.
@@ -366,7 +393,7 @@ then
     </form>
     {% endblock content %}
 
-## templates/registration/password_change_done
+## 3.6. templates/registration/password_change_done
 
     {% extends 'base.html' %}
 
@@ -377,7 +404,7 @@ then
         <p>Your password was changed.</p>
     {% endblock content %}
 
-## templates/registration/password_reset_form
+## 3.7. templates/registration/password_reset_form
     {% extends 'base.html' %}
 
     {% block title %}Forgot Your Password?{% endblock title %}
@@ -392,7 +419,7 @@ then
     <input class="btn btn-success" type="submit" value="Send me instructions!">
     </form>
     {% endblock content %}
-## templates/registration/password_reset_complete
+## 3.8. templates/registration/password_reset_complete
 
     {% extends 'base.html' %}
 
@@ -403,7 +430,7 @@ then
     <p>Your new password has been set. You can log in now on the <a href=\
     "{% url 'login' %}">log in page</a>.</p>
     {% endblock content %}
-## templates/registration/password_reset_confirm
+## 3.9. templates/registration/password_reset_confirm
     {% extends 'base.html' %}
 
     {% block title %}Enter new password{% endblock title %}
@@ -416,7 +443,7 @@ then
     <input class="btn btn-success" type="submit" value="Change my password">
     </form>
     {% endblock content %}
-## templates/registration/password_reset_done
+## 3.10. templates/registration/password_reset_done
     {% extends 'base.html' %}
 
     {% block title %}Email Sent{% endblock title %}
@@ -426,7 +453,7 @@ then
     <p>We've emailed you instructions for setting your password. You should receive the email shortly!</p>
     {% endblock content %}
 
-### Email
+### 3.10.1. Email
 
 using [sendgrid](https://sendgrid.com/), click on “Integrate using our Web API or SMTP relay” then “SMTP Relay”
 
@@ -435,7 +462,7 @@ using [sendgrid](https://sendgrid.com/), click on “Integrate using our Web API
     (news) $ touch templates/registration/password_reset_subject.txt
 
 and in the subject.txt add `Please reset your password`
-## templates/registration/password_reset_email
+## 3.11. templates/registration/password_reset_email
 
 
     {% load i18n %}{% autoescape off %}
@@ -452,7 +479,7 @@ and in the subject.txt add `Please reset your password`
     {% endautoescape %}
 
 
-## config/urls
+## 3.12. config/urls
 
     from django.contrib import admin
     from django.urls import path, include
@@ -486,14 +513,14 @@ also the default template to be replaced when `pages app` created in urlpatterns
     EMAIL_USE_TLS = True
 
 
-# Pages App
+# 4. Pages App
  
 **Note I** templates are ch 10 of the book and ch 11 of the git repo Bootstrap
  
 **Note II** all the new apps created plus the crispy for i already added it in first section Initial start
 
 
-## Pattern in adding new pages
+## 4.1. Pattern in adding new pages
 
 ```mermaid
 graph LR
@@ -510,7 +537,7 @@ A[App Level URL] --  Include all the links of the app --> B[Project Level URL]
 Then we add the path of the `home` to `config/urls.py` that includes the URLs of pages/urls.py that have all the links inside it for the pages app
 
 
-## config/urls
+## 4.2. config/urls
 
     from django.contrib import admin
     from django.urls import path, include
@@ -523,7 +550,7 @@ Then we add the path of the `home` to `config/urls.py` that includes the URLs of
         path('', include('pages.urls')), 
     ]
 
-## pages/urls
+## 4.3. pages/urls
 
     (news) $ touch pages/urls.py
 
@@ -534,7 +561,7 @@ Then we add the path of the `home` to `config/urls.py` that includes the URLs of
         path('', HomePageView.as_view(), name='home'),
     ]
 
-## pages/views
+## 4.4. pages/views
 
     # pages/views.py
 
@@ -543,7 +570,7 @@ Then we add the path of the `home` to `config/urls.py` that includes the URLs of
         template_name = 'home.html'
 
 
-## Adding bootstarp to templates html
+## 4.5. Adding bootstarp to templates html
 
 check the code for templates (too big to add here)
 
@@ -553,7 +580,7 @@ customizing the sign up pages adding crispy
 
     (news) $ pipenv install django-crispy-forms
 
-### config/settings
+### 4.5.1. config/settings
 
 in `INSTALLED_APPS` add
 
@@ -564,7 +591,7 @@ and at the end of the file add
 
     CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-# Articles App
+# 5. Articles App
 
 
 Next up we define our database model which contains four fields: title , body , date ,
@@ -578,7 +605,7 @@ defining a `get_absolute_url` from the beginning and a `__str__` method for view
 the model in our admin interface.
 
 
-## articles/models
+## 5.1. articles/models
 
     from django.conf import settings
     from django.contrib.auth import get_user_model
@@ -613,7 +640,7 @@ then apply it to the database.
     (news) $ python manage.py migrate
 
 
-## articles/admin
+## 5.2. articles/admin
 
 register the app in admin 
 
@@ -622,11 +649,11 @@ register the app in admin
     admin.site.register(Article)
 
 
-## articles/views
+## 5.3. articles/views
 
 
 
-# Static
+# 6. Static
 
     (news) $ mkdir static
 
@@ -661,9 +688,9 @@ the <head></head> code that explicitly references our new base.css file.
         <link href="{% static 'css/base.css' %}" rel="stylesheet">
     </head>
 
-# Git
+# 7. Git
 
-## Creating a new repository
+## 7.1. Creating a new repository
 
     git clone https://github.com/danielawde9/django-blog-app.git
     cd django-blog-app
@@ -671,7 +698,7 @@ the <head></head> code that explicitly references our new base.css file.
     git commit -m "Initial Commit"
     git push -u origin master
 
-## Push an existing folder
+## 7.2. Push an existing folder
 
     git init
     git add -A
@@ -679,7 +706,7 @@ the <head></head> code that explicitly references our new base.css file.
     git remote add origin git@github.com:danielawde9django-blog-app.git
     git push -u origin master
 
-## Push an existing Git repository
+## 7.3. Push an existing Git repository
 
     cd existing_repo
     git remote rename origin old-origin
@@ -687,7 +714,7 @@ the <head></head> code that explicitly references our new base.css file.
     git push -u origin --all
     git push -u origin --tags
 
-## If you want to remove folder form git and keep it locally
+## 7.4. If you want to remove folder form git and keep it locally
 
     # Remove the file from the repository
     git rm --cached - r .idea/
@@ -701,7 +728,7 @@ the <head></head> code that explicitly references our new base.css file.
     git commit -m "Removed .idea files"
     git push origin origin
 
-## Global .gitignore for your machine
+## 7.5. Global .gitignore for your machine
 
     touch ~/.gitignore
 
@@ -715,7 +742,7 @@ then in terminal
 
 Now all future git repo will ignore .idea folder
 
-## Generate SSH key
+## 7.6. Generate SSH key
 
     ssh-keygen -t ed25519 -C “Comment”
 
@@ -723,9 +750,9 @@ Then add .pub which is the public key to gitlab usually in `.ssh/key.pub`
 
 <hr>
 
-# Deployment
+# 8. Deployment
 
-## Django Deplyoment Checklist
+## 8.1. Django Deplyoment Checklist
 
     Run manage.py check --deploy
 
@@ -745,7 +772,7 @@ You’re certainly developing your project with `DEBUG = True`, since
 
     ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1']
 
-## Heroku
+## 8.2. Heroku
 
 - update Pipfile.lock
 - new Procfile
@@ -759,7 +786,7 @@ You’re certainly developing your project with `DEBUG = True`, since
 
 Run `pipenv lock` to generate the appropriate `Pipfile.lock` incase its not present.
 
-### Procfile
+### 8.2.1. Procfile
 
 Then create a Procfile which tells Heroku how to run the remote server where our code will live.
 
@@ -775,7 +802,7 @@ Next install gunicorn which we’ll use in production while still using Django�
 
     (blog) $ pipenv install gunicorn
 
-## Heroku Deployment
+## 8.3. Heroku Deployment
 
 Make sure to login
 
