@@ -1,4 +1,5 @@
 
+
 - [1. Initial Start](#1-initial-start)
 - [2. Custom Users App](#2-custom-users-app)
   - [2.1. config/settings](#21-configsettings)
@@ -256,7 +257,7 @@ Add the settings.py directory of the template
     </body>
     </html>
 
-### 3.2.1. temlpates/home
+##  temlpates/home
 
 In our templates file home.html we can use the Django Templating Language’s for a loop to list all the objects in
 object_list Why **object_list** ? This is the name of the variable that ListView returns to us.
@@ -344,6 +345,8 @@ paragraph <p> tags.
     <!-- templates/signup.html -->
 
     {% extends 'base.html' %}
+    {% load crispy_forms_tags %} # added after installing crispy
+
     {% block title %}Sign Up{% endblock title %}
     {% block content %}
 
@@ -479,6 +482,171 @@ and in the subject.txt add `Please reset your password`
     {% endautoescape %}
 
 
+
+## templates/article_list
+
+**after installing the articles app**
+
+
+    {% extends 'base.html' %}
+
+    {% block title %}Articles{% endblock title %}
+
+    {% block content %}
+    # {% for article in object_list %}
+    {% for article in all_articles_list %}
+
+        <div class="card">
+        <div class="card-header">
+            <span class="font-weight-bold">{{ article.title }}</span> &middot;
+            <span class="text-muted">by {{ article.author }} | {{ article.date }}</span>
+        </div>
+        <div class="card-body">
+            {{ article.body }}
+        </div>
+        <div class="card-footer text-center text-muted">
+            <a href="{% url 'article_edit' article.pk %}">Edit</a> |
+            <a href="{% url 'article_delete' article.pk %}">Delete</a>
+        </div>
+        </div>
+        <br />
+    {% endfor %}
+    {% endblock content %}
+
+instead of using `object_list` we add `context_object_name` in the views and give it cutom name this case will be instead of `object_list` it will be `all_articles_list`
+
+    (news) $ touch templates/article_detail.html
+    (news) $ touch templates/article_edit.html
+    (news) $ touch templates/article_delete.html
+
+## templates/article_detail
+
+    {% extends 'base.html' %}
+
+    {% block content %}
+    <div class="article-entry">
+    <h2>{{ object.title }}</h2>
+        <p>by {{ object.author }} | {{ object.date }}</p>
+        <p>{{ object.body }}</p>
+    </div>
+
+    <p><a href="{% url 'article_edit' article.pk %}">Edit</a> | <a href="{% url 'article_delete' article.pk %}">Delete</a></p>
+    <p>Back to <a href="{% url 'article_list' %}">All Articles</a>.</p>
+    {% endblock content %}
+## templates/article_edit
+
+    {% extends 'base.html' %}
+
+    {% block content %}
+        <h1>Edit</h1>
+        <form action="" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-info ml-2" type="submit">Update</button>
+    </form>
+    {% endblock content %}
+
+## templates/article_delete
+    {% extends 'base.html' %}
+
+    {% block content %}
+        <h1>Delete</h1>
+        <form action="" method="post">{% csrf_token %}
+        <p>Are you sure you want to delete "{{ article.title }}"?</p>
+        <button class="btn btn-danger ml-2" type="submit">Confirm</button>
+        </form>
+    {% endblock content %}
+
+## templates/article_new
+    {% extends 'base.html' %}
+
+    {% block content %}
+        <h1>New article</h1>
+        <form action="" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success ml-2" type="submit">Save</button>
+        </form>
+    {% endblock content %}
+
+## Updated templates/home
+
+    {% extends 'base.html' %}
+
+    {% block title %}Home{% endblock title %}
+
+    {% block content %}
+    <div class="jumbotron">
+    <h1 class="display-4">Newspaper app</h1>
+    <p class="lead">A Newspaper website built with Django.</p>
+    <p class="lead">
+        <a class="btn btn-primary btn-lg" href="{% url 'article_list' %}" role="button">View All Articles</a>
+    </p>
+    </div>
+    {% endblock content %}
+
+## Updated templates/base
+
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+        <title>{% block title %}Newspaper App{% endblock title %}</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+        <a class="navbar-brand" href="{% url 'home' %}">Newspaper</a>
+        {% if user.is_authenticated %}
+            <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a href="{% url 'article_new' %}">+ New</a></li>
+            </ul>
+        {% endif %}
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            {% if user.is_authenticated %}
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                <a class="nav-link dropdown-toggle" href="#" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ user.username }}
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+                    <a class="dropdown-item" href="{% url 'password_change'%}">Change password</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'logout' %}">
+                    Log Out</a>
+                </div>
+                </li>
+            </ul>
+            {% else %}
+            <form class="form-inline ml-auto">
+                <a href="{% url 'login' %}" class="btn btn-outline-secondary">
+                Log In</a>
+                <a href="{% url 'signup' %}" class="btn btn-primary ml-2">
+                Sign up</a>
+            </form>
+            {% endif %}
+        </div>
+        </nav>
+        <div class="container">
+        {% block content %}
+        {% endblock content %}
+        </div>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    </body>
+    </html>
+
+
 ## 3.12. config/urls
 
     from django.contrib import admin
@@ -580,7 +748,9 @@ customizing the sign up pages adding crispy
 
     (news) $ pipenv install django-crispy-forms
 
-### 4.5.1. config/settings
+## adding and customizing pages (view template section)
+
+## 4.5.1. config/settings
 
 in `INSTALLED_APPS` add
 
@@ -628,10 +798,18 @@ the model in our admin interface.
         def get_absolute_url(self):
             return reverse('article_detail', args=[str(self.id)])
 
+
 we should use `get_absolute_url` It sets a canonical URL for an object so even if
 the structure of your URLs changes in the future, the reference to the specific object
 is the same. In short, you should add a `get_absolute_url()` and `__str__()` method to
 **each model** you write.
+
+
+For the author field we’re using a ForeignKey which allows for a many-to-one relationship. This means that a given user
+can be the author of many different blog posts but not the other way around. The reference is to the built-in User model
+that Django provides for authentication. For all many-to-one relationships such as a ForeignKey we must also specify an
+on_delete option.
+
 
 Since we have a brand new app and model, it’s time to make a new migration file and
 then apply it to the database.
@@ -639,6 +817,115 @@ then apply it to the database.
     (news) $ python manage.py makemigrations articles
     (news) $ python manage.py migrate
 
+## config/settings
+
+add the articles in installed apps
+
+    path('articles/', include('articles.urls')), # new
+
+
+## articles/urls.py
+
+    (news) $ touch articles/urls.py
+
+
+Then populate it with our routes. Let’s start with the page to list all articles at
+articles/ which will use the view ArticleListView .
+
+    # articles/urls.py
+    from django.urls import path
+    from .views import ArticleListView
+    urlpatterns = [
+        ath('', ArticleListView.as_view(), name='article_list'),
+    ]
+
+we need to add the rest of the pages edit, add, delete
+
+
+    from .views import (
+        ArticleListView,
+        ArticleUpdateView,
+        ArticleDetailView,
+        ArticleDeleteView,
+        ArticleCreateView  # new
+    )
+
+    urlpatterns = [
+        path('<int:pk>/edit/',
+            ArticleUpdateView.as_view(), name='article_edit'),
+        path('<int:pk>/',
+            ArticleDetailView.as_view(), name='article_detail'),
+        path('<int:pk>/delete/',
+            ArticleDeleteView.as_view(), name='article_delete'),
+        path('new/', ArticleCreateView.as_view(), name='article_new'),
+        path('', ArticleListView.as_view(), name='article_list'),
+    ]
+
+
+Next is the primary key for our post-entry which will be represented as an integer `<int:pk>`
+
+Django automatically adds an auto-incrementing primary key to our database models.
+
+So while we only declared the fields title , author , and body on our Post model, under-the-hood Django also added
+another field called id , which is our primary key. We can **access it as either id or pk**.
+
+
+To be able to navigate to the post, in `templates/home.html` in anchor add the href `{% url 'post_detail' post.pk %}`
+
+
+Now write up our views which will use Django’s generic class-based views
+DetailView , UpdateView and DeleteView . We specify which fields can be updated– title
+and body –and where to redirect the user after deleting an article: article_list .
+
+
+## articles/views.py
+Now create our view using the built-in generic ListView from Django.
+
+    # articles/views.py
+    from django.views.generic import ListView
+    from .models import Article
+    class ArticleListView(ListView):
+        model = Article
+        template_name = 'article_list.html'
+    	context_object_name = 'all_articles_list'
+
+Internally ListView returns an object called object_list that we want to display in our template. to replace that default naming we use `context_object_name` and give it a value we can use and understand 
+
+    from django.views.generic import ListView, DetailView
+    from django.views.generic.edit import UpdateView, DeleteView, CreateView
+    from django.urls import reverse_lazy
+
+    from .models import Article
+
+
+    class ArticleListView(ListView):
+        model = Article
+        template_name = 'article_list.html'
+
+
+    class ArticleDetailView(DetailView):
+        model = Article
+        template_name = 'article_detail.html'
+
+
+    class ArticleUpdateView(UpdateView):
+        model = Article
+        fields = ('title', 'body',)
+        template_name = 'article_edit.html'
+
+
+    class ArticleDeleteView(DeleteView):
+        model = Article
+        template_name = 'article_delete.html'
+        success_url = reverse_lazy('article_list')
+
+
+    class ArticleCreateView(CreateView):
+        model = Article
+        template_name = 'article_new.html'
+        fields = ('title', 'body', 'author',)
+        
+## adding templates (view template section)
 
 ## 5.2. articles/admin
 
@@ -647,9 +934,6 @@ register the app in admin
     from django.contrib import admin
     from .models import Article
     admin.site.register(Article)
-
-
-## 5.3. articles/views
 
 
 
@@ -871,3 +1155,56 @@ Push the code to Heroku and add free scaling, so it’s actually running online,
     (blog) $ heroku ps:scale web=1
 
 also git commit and push
+
+
+# Test Cases
+
+## pages/tests
+
+    from django.contrib.auth import get_user_model
+    from django.test import SimpleTestCase, TestCase
+    from django.urls import reverse
+
+
+    class HomePageTests(SimpleTestCase):
+
+        def test_home_page_status_code(self):
+            response = self.client.get('/')
+            self.assertEqual(response.status_code, 200)
+
+        def test_view_url_by_name(self):
+            response = self.client.get(reverse('home'))
+            self.assertEqual(response.status_code, 200)
+
+        def test_view_uses_correct_template(self):
+            response = self.client.get(reverse('home'))
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response, 'home.html')
+
+
+    class SignupPageTests(TestCase):
+
+        username = 'newuser'
+        email = 'newuser@email.com'
+
+        def test_signup_page_status_code(self):
+            response = self.client.get('/users/signup/')
+            self.assertEqual(response.status_code, 200)
+
+        def test_view_url_by_name(self):
+            response = self.client.get(reverse('signup'))
+            self.assertEqual(response.status_code, 200)
+
+        def test_view_uses_correct_template(self):
+            response = self.client.get(reverse('signup'))
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response, 'signup.html')
+
+        def test_signup_form(self):
+            new_user = get_user_model().objects.create_user(
+                self.username, self.email)
+            self.assertEqual(get_user_model().objects.all().count(), 1)
+            self.assertEqual(get_user_model().objects.all()
+                            [0].username, self.username)
+            self.assertEqual(get_user_model().objects.all()
+                            [0].email, self.email)
