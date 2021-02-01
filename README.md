@@ -11,29 +11,40 @@
 - [3. Templates](#3-templates)
   - [3.1. config/settings.py](#31-configsettingspy)
   - [3.2. temlpates/base](#32-temlpatesbase)
-    - [3.2.1. temlpates/home](#321-temlpateshome)
-  - [3.3. templates/registration/login](#33-templatesregistrationlogin)
-  - [3.4. templates/signup](#34-templatessignup)
-  - [3.5. templates/registration/password_change_form](#35-templatesregistrationpassword_change_form)
-  - [3.6. templates/registration/password_change_done](#36-templatesregistrationpassword_change_done)
-  - [3.7. templates/registration/password_reset_form](#37-templatesregistrationpassword_reset_form)
-  - [3.8. templates/registration/password_reset_complete](#38-templatesregistrationpassword_reset_complete)
-  - [3.9. templates/registration/password_reset_confirm](#39-templatesregistrationpassword_reset_confirm)
-  - [3.10. templates/registration/password_reset_done](#310-templatesregistrationpassword_reset_done)
-    - [3.10.1. Email](#3101-email)
-  - [3.11. templates/registration/password_reset_email](#311-templatesregistrationpassword_reset_email)
-  - [3.12. config/urls](#312-configurls)
+  - [3.3. temlpates/home](#33-temlpateshome)
+  - [3.4. templates/registration/login](#34-templatesregistrationlogin)
+  - [3.5. templates/signup](#35-templatessignup)
+  - [3.6. templates/registration/password_change_form](#36-templatesregistrationpassword_change_form)
+  - [3.7. templates/registration/password_change_done](#37-templatesregistrationpassword_change_done)
+  - [3.8. templates/registration/password_reset_form](#38-templatesregistrationpassword_reset_form)
+  - [3.9. templates/registration/password_reset_complete](#39-templatesregistrationpassword_reset_complete)
+  - [3.10. templates/registration/password_reset_confirm](#310-templatesregistrationpassword_reset_confirm)
+  - [3.11. templates/registration/password_reset_done](#311-templatesregistrationpassword_reset_done)
+    - [3.11.1. Email](#3111-email)
+  - [3.12. templates/registration/password_reset_email](#312-templatesregistrationpassword_reset_email)
+  - [3.13. templates/article_list](#313-templatesarticle_list)
+  - [3.14. templates/article_detail](#314-templatesarticle_detail)
+  - [3.15. templates/article_edit](#315-templatesarticle_edit)
+  - [3.16. templates/article_delete](#316-templatesarticle_delete)
+  - [3.17. templates/article_new](#317-templatesarticle_new)
+  - [3.18. Updated templates/home](#318-updated-templateshome)
+  - [3.19. Updated templates/base](#319-updated-templatesbase)
+  - [3.20. config/urls](#320-configurls)
 - [4. Pages App](#4-pages-app)
   - [4.1. Pattern in adding new pages](#41-pattern-in-adding-new-pages)
   - [4.2. config/urls](#42-configurls)
   - [4.3. pages/urls](#43-pagesurls)
   - [4.4. pages/views](#44-pagesviews)
   - [4.5. Adding bootstarp to templates html](#45-adding-bootstarp-to-templates-html)
-    - [4.5.1. config/settings](#451-configsettings)
+  - [4.6. adding and customizing pages (view template section)](#46-adding-and-customizing-pages-view-template-section)
+  - [4.7. config/settings](#47-configsettings)
 - [5. Articles App](#5-articles-app)
   - [5.1. articles/models](#51-articlesmodels)
-  - [5.2. articles/admin](#52-articlesadmin)
-  - [5.3. articles/views](#53-articlesviews)
+  - [5.2. config/settings](#52-configsettings)
+  - [5.3. articles/urls.py](#53-articlesurlspy)
+  - [5.4. articles/views.py](#54-articlesviewspy)
+  - [5.5. adding templates (view template section)](#55-adding-templates-view-template-section)
+  - [5.6. articles/admin](#56-articlesadmin)
 - [6. Static](#6-static)
 - [7. Git](#7-git)
   - [7.1. Creating a new repository](#71-creating-a-new-repository)
@@ -47,6 +58,8 @@
   - [8.2. Heroku](#82-heroku)
     - [8.2.1. Procfile](#821-procfile)
   - [8.3. Heroku Deployment](#83-heroku-deployment)
+- [9. Test Cases](#9-test-cases)
+  - [9.1. pages/tests](#91-pagestests)
 
 
 # 1. Initial Start
@@ -257,7 +270,7 @@ Add the settings.py directory of the template
     </body>
     </html>
 
-##  temlpates/home
+##  3.3. temlpates/home
 
 In our templates file home.html we can use the Django Templating Language’s for a loop to list all the objects in
 object_list Why **object_list** ? This is the name of the variable that ListView returns to us.
@@ -316,7 +329,7 @@ Adding user auth
 
     {% endblock content %}
 
-## 3.3. templates/registration/login
+## 3.4. templates/registration/login
 
     <!-- templates/registration/login.html -->
 
@@ -340,7 +353,7 @@ paragraph <p> tags.
 - the btn class is added after the bootstrap cripy installation
 
 
-## 3.4. templates/signup
+## 3.5. templates/signup
 
     <!-- templates/signup.html -->
 
@@ -365,7 +378,7 @@ paragraph <p> tags.
 
 **Note II** for a better form please install crispy form, check next chapter
 
-## 3.5. templates/registration/password_change_form
+## 3.6. templates/registration/password_change_form
 Let’s customize these two password change pages so that they match the look and
 feel of our Newspaper site. Because Django already has created the views and URLs
 for us, we only need to add new templates.
@@ -396,7 +409,7 @@ then
     </form>
     {% endblock content %}
 
-## 3.6. templates/registration/password_change_done
+## 3.7. templates/registration/password_change_done
 
     {% extends 'base.html' %}
 
@@ -407,7 +420,7 @@ then
         <p>Your password was changed.</p>
     {% endblock content %}
 
-## 3.7. templates/registration/password_reset_form
+## 3.8. templates/registration/password_reset_form
     {% extends 'base.html' %}
 
     {% block title %}Forgot Your Password?{% endblock title %}
@@ -422,7 +435,7 @@ then
     <input class="btn btn-success" type="submit" value="Send me instructions!">
     </form>
     {% endblock content %}
-## 3.8. templates/registration/password_reset_complete
+## 3.9. templates/registration/password_reset_complete
 
     {% extends 'base.html' %}
 
@@ -433,7 +446,7 @@ then
     <p>Your new password has been set. You can log in now on the <a href=\
     "{% url 'login' %}">log in page</a>.</p>
     {% endblock content %}
-## 3.9. templates/registration/password_reset_confirm
+## 3.10. templates/registration/password_reset_confirm
     {% extends 'base.html' %}
 
     {% block title %}Enter new password{% endblock title %}
@@ -446,7 +459,7 @@ then
     <input class="btn btn-success" type="submit" value="Change my password">
     </form>
     {% endblock content %}
-## 3.10. templates/registration/password_reset_done
+## 3.11. templates/registration/password_reset_done
     {% extends 'base.html' %}
 
     {% block title %}Email Sent{% endblock title %}
@@ -456,7 +469,7 @@ then
     <p>We've emailed you instructions for setting your password. You should receive the email shortly!</p>
     {% endblock content %}
 
-### 3.10.1. Email
+### 3.11.1. Email
 
 using [sendgrid](https://sendgrid.com/), click on “Integrate using our Web API or SMTP relay” then “SMTP Relay”
 
@@ -465,7 +478,7 @@ using [sendgrid](https://sendgrid.com/), click on “Integrate using our Web API
     (news) $ touch templates/registration/password_reset_subject.txt
 
 and in the subject.txt add `Please reset your password`
-## 3.11. templates/registration/password_reset_email
+## 3.12. templates/registration/password_reset_email
 
 
     {% load i18n %}{% autoescape off %}
@@ -483,7 +496,7 @@ and in the subject.txt add `Please reset your password`
 
 
 
-## templates/article_list
+## 3.13. templates/article_list
 
 **after installing the articles app**
 
@@ -519,7 +532,7 @@ instead of using `object_list` we add `context_object_name` in the views and giv
     (news) $ touch templates/article_edit.html
     (news) $ touch templates/article_delete.html
 
-## templates/article_detail
+## 3.14. templates/article_detail
 
     {% extends 'base.html' %}
 
@@ -533,7 +546,7 @@ instead of using `object_list` we add `context_object_name` in the views and giv
     <p><a href="{% url 'article_edit' article.pk %}">Edit</a> | <a href="{% url 'article_delete' article.pk %}">Delete</a></p>
     <p>Back to <a href="{% url 'article_list' %}">All Articles</a>.</p>
     {% endblock content %}
-## templates/article_edit
+## 3.15. templates/article_edit
 
     {% extends 'base.html' %}
 
@@ -545,7 +558,7 @@ instead of using `object_list` we add `context_object_name` in the views and giv
     </form>
     {% endblock content %}
 
-## templates/article_delete
+## 3.16. templates/article_delete
     {% extends 'base.html' %}
 
     {% block content %}
@@ -556,7 +569,7 @@ instead of using `object_list` we add `context_object_name` in the views and giv
         </form>
     {% endblock content %}
 
-## templates/article_new
+## 3.17. templates/article_new
     {% extends 'base.html' %}
 
     {% block content %}
@@ -567,7 +580,7 @@ instead of using `object_list` we add `context_object_name` in the views and giv
         </form>
     {% endblock content %}
 
-## Updated templates/home
+## 3.18. Updated templates/home
 
     {% extends 'base.html' %}
 
@@ -583,7 +596,7 @@ instead of using `object_list` we add `context_object_name` in the views and giv
     </div>
     {% endblock content %}
 
-## Updated templates/base
+## 3.19. Updated templates/base
 
     <!doctype html>
     <html lang="en">
@@ -647,7 +660,7 @@ instead of using `object_list` we add `context_object_name` in the views and giv
     </html>
 
 
-## 3.12. config/urls
+## 3.20. config/urls
 
     from django.contrib import admin
     from django.urls import path, include
@@ -748,9 +761,9 @@ customizing the sign up pages adding crispy
 
     (news) $ pipenv install django-crispy-forms
 
-## adding and customizing pages (view template section)
+## 4.6. adding and customizing pages (view template section)
 
-## 4.5.1. config/settings
+## 4.7. config/settings
 
 in `INSTALLED_APPS` add
 
@@ -817,14 +830,14 @@ then apply it to the database.
     (news) $ python manage.py makemigrations articles
     (news) $ python manage.py migrate
 
-## config/settings
+## 5.2. config/settings
 
 add the articles in installed apps
 
     path('articles/', include('articles.urls')), # new
 
 
-## articles/urls.py
+## 5.3. articles/urls.py
 
     (news) $ touch articles/urls.py
 
@@ -878,7 +891,7 @@ DetailView , UpdateView and DeleteView . We specify which fields can be updated�
 and body –and where to redirect the user after deleting an article: article_list .
 
 
-## articles/views.py
+## 5.4. articles/views.py
 Now create our view using the built-in generic ListView from Django.
 
     # articles/views.py
@@ -925,9 +938,9 @@ Internally ListView returns an object called object_list that we want to display
         template_name = 'article_new.html'
         fields = ('title', 'body', 'author',)
         
-## adding templates (view template section)
+## 5.5. adding templates (view template section)
 
-## 5.2. articles/admin
+## 5.6. articles/admin
 
 register the app in admin 
 
@@ -1157,9 +1170,9 @@ Push the code to Heroku and add free scaling, so it’s actually running online,
 also git commit and push
 
 
-# Test Cases
+# 9. Test Cases
 
-## pages/tests
+## 9.1. pages/tests
 
     from django.contrib.auth import get_user_model
     from django.test import SimpleTestCase, TestCase
