@@ -8,6 +8,7 @@
   - [2.4. users/views](#24-usersviews)
   - [2.5. users/forms.py](#25-usersformspy)
   - [2.6. users/admin.py](#26-usersadminpy)
+  - [2.7. Troubleshooting DB](#27-troubleshooting-db)
 - [3. Templates](#3-templates)
   - [3.1. config/settings.py](#31-configsettingspy)
   - [3.2. temlpates/base](#32-temlpatesbase)
@@ -29,7 +30,8 @@
   - [3.17. templates/article_new](#317-templatesarticle_new)
   - [3.18. Updated templates/home](#318-updated-templateshome)
   - [3.19. Updated templates/base](#319-updated-templatesbase)
-  - [3.20. config/urls](#320-configurls)
+  - [3.20. config/urls.py](#320-configurlspy)
+  - [3.21. config/settings.py](#321-configsettingspy)
 - [4. Pages App](#4-pages-app)
   - [4.1. Pattern in adding new pages](#41-pattern-in-adding-new-pages)
   - [4.2. config/urls](#42-configurls)
@@ -40,7 +42,7 @@
   - [4.7. config/settings](#47-configsettings)
 - [5. Articles App](#5-articles-app)
   - [5.1. articles/models](#51-articlesmodels)
-  - [5.2. config/settings](#52-configsettings)
+  - [5.2. config/urls](#52-configurls)
   - [5.3. articles/urls.py](#53-articlesurlspy)
   - [5.4. articles/views.py](#54-articlesviewspy)
   - [5.5. adding templates (view template section)](#55-adding-templates-view-template-section)
@@ -177,13 +179,13 @@ create it first `touch users/forms.py`
 
     from .models import CustomUser
 
-    class CustomerUserCreationForm(UserCreationForm):
+    class CustomUserCreationForm(UserCreationForm):
         class Meta(UserCreationForm.Meta):
             model = CustomUser
             # default forms - fields = UserCreationForm.Meta.fields + ('age',)
             fields = ('username', 'email', 'age',) # new after fixing the templates
 
-    class CustomerUserChangeForm(UserChangeForm):
+    class CustomUserChangeForm(UserChangeForm):
         class Meta:
             model = CustomUser
             # default forms - fields = UserChangeForm.Meta.fields
@@ -209,14 +211,27 @@ use our new CustomUser model.
         form = CustomUserChangeForm
         model = CustomUser
         list_display = ['email', 'username', 'age', 'is_staff', ] # customize what to show
+        fieldsets = UserAdmin.fieldsets + (
+            (None, {'fields': ('age',)}),
+        )
+        add_fieldsets = UserAdmin.add_fieldsets + (
+            (None, {'fields': ('age',)}),
+        )
 
 
-    admin.site.register(CustomUser,CustomUserAdmin)
+    admin.site.register(CustomUser, CustomUserAdmin)
+
 
 make the migration
 
     (news) $ python manage.py makemigrations users
     (news) $ python manage.py migrate
+
+## 2.7. Troubleshooting DB
+
+    python manage.py makemigrations
+    python manage.py migrate --run-syncdb
+
 
 **Super user**
 
@@ -261,7 +276,7 @@ Add the settings.py directory of the template
     </head>
     <body>
         <header>
-            <h1><a href="{% url 'home' %}">Django blog</a></h1>
+            <h1><a href="{% url 'home' %}">Django news</a></h1>
         </header>
         <div>
             {% block content %}
@@ -288,14 +303,14 @@ object_list Why **object_list** ? This is the name of the variable that ListView
         {% endfor %}
     {% endblock content %}
 
-In order to fix the naming of **object_list** we need to rename the return of the views of the `blog/views.py`
-called `context_object_name = 'what ever name you want'` here we called `all_blog_list`
+In order to fix the naming of **object_list** we need to rename the return of the views of the `articles/views.py`
+called `context_object_name = 'what ever name you want'` here we called `all_articles_list`
 
     <!-- templates/home.html -->
     {% extends 'base.html' %}
 
     {% block content %}
-        {% for post in all_blog_list %}
+        {% for post in all_articles_list %}
             <div class="post-entry">
                 <h2><a href="">{{ post.title }}</a></h2>
                 <p>{{ post.body }}</p>
@@ -315,7 +330,7 @@ Adding user auth
             Hi {{ user.username }}!
             <p><a href="{% url 'logout' %}">Log Out</a></p>
 
-            {% for post in all_blog_list %}
+            {% for post in all_articles_list %}
                 <div class="post-entry">
                     <h2><a href="">{{ post.title }}</a></h2>
                     <p>{{ post.body }}</p>
@@ -366,7 +381,7 @@ paragraph <p> tags.
     <h2>Sign Up</h2>
     <form method="post">
         {% csrf_token %}
-        # old {{ form.as_p }}
+        {% comment %} old {{ form.as_p }} {% endcomment %}
         {{ form|crispy }}
         <button class="btn btn-success" type="submit">Sign Up</button>    
         </form>
@@ -498,6 +513,7 @@ and in the subject.txt add `Please reset your password`
 
 ## 3.13. templates/article_list
 
+
 **after installing the articles app**
 
 
@@ -531,6 +547,8 @@ instead of using `object_list` we add `context_object_name` in the views and giv
     (news) $ touch templates/article_detail.html
     (news) $ touch templates/article_edit.html
     (news) $ touch templates/article_delete.html
+    (news) $ touch templates/article_list.html
+    (news) $ touch templates/article_new.html
 
 ## 3.14. templates/article_detail
 
@@ -660,11 +678,10 @@ instead of using `object_list` we add `context_object_name` in the views and giv
     </html>
 
 
-## 3.20. config/urls
+## 3.20. config/urls.py
 
     from django.contrib import admin
     from django.urls import path, include
-    from django.views.generic.base import TemplateView
 
     urlpatterns = [
         path('admin/', admin.site.urls),
@@ -676,13 +693,16 @@ instead of using `object_list` we add `context_object_name` in the views and giv
 
 also the default template to be replaced when `pages app` created in urlpatterns
 
+~~from django.views.generic.base import TemplateView~~
+
 ~~path('', TemplateView.as_view(template_name='home.html'), name='home'),~~
 
-    path('', include('pages.urls')), # new
+
+## 3.21. config/settings.py
+
 
     # for the pass reset (debug mode)
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 
     # for the pass reset (sendgrid production mode)
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' 
@@ -708,7 +728,9 @@ graph LR
 A[Templates] --> B((View))
 B --> D{URL}
 ```
+
 As for the URL
+
 
 ```mermaid
 graph LR
@@ -830,7 +852,7 @@ then apply it to the database.
     (news) $ python manage.py makemigrations articles
     (news) $ python manage.py migrate
 
-## 5.2. config/settings
+## 5.2. config/urls
 
 add the articles in installed apps
 
@@ -854,6 +876,9 @@ articles/ which will use the view ArticleListView .
 
 we need to add the rest of the pages edit, add, delete
 
+
+    from django.urls import path
+    from .views import ArticleListView
 
     from .views import (
         ArticleListView,
@@ -981,7 +1006,7 @@ the <head></head> code that explicitly references our new base.css file.
     {% load static %}
     <html>
     <head>
-        <title>Django blog</title>
+        <title>Django articles</title>
         <link href="{% static 'css/base.css' %}" rel="stylesheet">
     </head>
 
@@ -1097,35 +1122,35 @@ Inside the Procfile
 
 Next install gunicorn which we’ll use in production while still using Django’s internal server for local development use.
 
-    (blog) $ pipenv install gunicorn
+    (news) $ pipenv install gunicorn
 
 ## 8.3. Heroku Deployment
 
 Make sure to login
 
-    (blog) $ heroku login
-    (blog) $ heroku create
+    (news) $ heroku login
+    (news) $ heroku create
 
 Now we need to add a **hook** for Heroku within a git. This means that git will store both our settings for pushing code
 to Bitbucket and to Heroku.
 
 My app name is `calm-badlands-09889` so the command will be
 
-    (blog) $ heroku git:remote -a calm-badlands-09889
+    (news) $ heroku git:remote -a calm-badlands-09889
 
 ~~Tell Heroku to ignore static files which we’ll cover in-depth when deploying our Blog app later in the book.~~
 
-`~~(blog) $ heroku config:set DISABLE_COLLECTSTATIC=1~~
+`~~(news) $ heroku config:set DISABLE_COLLECTSTATIC=1~~
 
 There’s one more step we need to take now that we have static files, which in our
 case is CSS. Django does not support serving static files in production however the
 WhiteNoise project does. So let’s install it.
 
-    (blog) $ pipenv install whitenoise
+    (news) $ pipenv install whitenoise
 
 in our `settings.py` file add `ALLOWED_HOSTS`
 
-    # blog_project/settings.py
+    # news_project/settings.py
     ALLOWED_HOSTS = ['*']
 
 Add whitenoise to the INSTALLED_APPS above the built-
@@ -1133,13 +1158,7 @@ in staticfiles app and also to MIDDLEWARE on the third line. Order matters for b
 INSTALLED_APPS and MIDDLEWARE .
 
     INSTALLED_APPS = [
-        'blog.apps.BlogConfig',
-        'accounts.apps.AccountsConfig',
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
+        ....
         'whitenoise.runserver_nostatic', # new!
         'django.contrib.staticfiles',
     ]
@@ -1164,8 +1183,8 @@ at the bottom add
 
 Push the code to Heroku and add free scaling, so it’s actually running online, otherwise the code is just sitting there.
 
-    (blog) $ git push heroku master
-    (blog) $ heroku ps:scale web=1
+    (news) $ git push heroku master
+    (news) $ heroku ps:scale web=1
 
 also git commit and push
 
