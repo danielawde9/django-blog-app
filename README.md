@@ -13,6 +13,7 @@
   - [3.1. config/settings.py](#31-configsettingspy)
   - [3.2. temlpates/base](#32-temlpatesbase)
   - [3.3. temlpates/home](#33-temlpateshome)
+    - [Adding user auth](#adding-user-auth)
   - [3.4. templates/registration/login](#34-templatesregistrationlogin)
   - [3.5. templates/signup](#35-templatessignup)
   - [3.6. templates/registration/password_change_form](#36-templatesregistrationpassword_change_form)
@@ -45,7 +46,8 @@
   - [5.2. config/urls](#52-configurls)
   - [5.3. articles/urls.py](#53-articlesurlspy)
   - [5.4. articles/views.py](#54-articlesviewspy)
-  - [5.5. adding templates (view template section)](#55-adding-templates-view-template-section)
+    - [Adding authorization](#adding-authorization)
+  - [5.5. adding htmls (view template section)](#55-adding-htmls-view-template-section)
   - [5.6. articles/admin](#56-articlesadmin)
 - [6. Static](#6-static)
 - [7. Git](#7-git)
@@ -319,7 +321,7 @@ called `context_object_name = 'what ever name you want'` here we called `all_art
     {% endblock content %}
 
 
-Adding user auth
+### Adding user auth
 
 
     <!-- templates/home.html -->
@@ -522,8 +524,8 @@ and in the subject.txt add `Please reset your password`
     {% block title %}Articles{% endblock title %}
 
     {% block content %}
-    # {% for article in object_list %}
-    {% for article in all_articles_list %}
+    {% for article in object_list %}
+    {% comment } {% for article in all_articles_list %} {% endcomment %}
 
         <div class="card">
         <div class="card-header">
@@ -925,10 +927,26 @@ Now create our view using the built-in generic ListView from Django.
     class ArticleListView(ListView):
         model = Article
         template_name = 'article_list.html'
-    	context_object_name = 'all_articles_list'
+    	# context_object_name = 'all_articles_list'
 
 Internally ListView returns an object called object_list that we want to display in our template. to replace that default naming we use `context_object_name` and give it a value we can use and understand 
 
+
+
+### Adding authorization
+At present the author on a new article can be set to any user. Instead it should
+be automatically set to the current user. The default `CreateView` provides a lot of
+functionality for us but in order to set the current user to author we need to customize
+it. We will remove author from the fields and instead set it automatically via the
+`form_valid` method. in **articles/views.py**
+
+`Generic class-based views`
+
+To restrict view access to only logged in users, Django has a `LoginRequiredMixin`  that
+we can use. It’s powerful and extremely concise.
+adding the redirect login in case the user is not authenticated
+
+    from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
     from django.views.generic import ListView, DetailView
     from django.views.generic.edit import UpdateView, DeleteView, CreateView
     from django.urls import reverse_lazy
@@ -936,34 +954,71 @@ Internally ListView returns an object called object_list that we want to display
     from .models import Article
 
 
-    class ArticleListView(ListView):
+    class ArticleListView(LoginRequiredMixin, ListView):
         model = Article
         template_name = 'article_list.html'
+        login_url = 'login'
 
 
-    class ArticleDetailView(DetailView):
+    class ArticleDetailView(LoginRequiredMixin, DetailView):
         model = Article
         template_name = 'article_detail.html'
+        login_url = 'login'
 
 
-    class ArticleUpdateView(UpdateView):
+    class ArticleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         model = Article
         fields = ('title', 'body',)
         template_name = 'article_edit.html'
+        login_url = 'login'
+
+        def test_func(self):
+            obj = self.get_object()
+            return obj.author == self.request.user
+
+        # def dispatch(self, request, *args, **kwargs):
+        #     obj = self.get_object()
+        #     if obj.author != self.request.user:
+        #         raise PermissionDenied
+        #     return super().dispatch(request, *args, **kwargs)
 
 
-    class ArticleDeleteView(DeleteView):
+    class ArticleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         model = Article
         template_name = 'article_delete.html'
         success_url = reverse_lazy('article_list')
+        login_url = 'login'
 
+        def test_func(self):
+            obj = self.get_object()
+            return obj.author == self.request.user
 
-    class ArticleCreateView(CreateView):
+        # def dispatch(self, request, *args, **kwargs):
+        #     obj = self.get_object()
+        #     if obj.author != self.request.user:
+        #         raise PermissionDenied
+        #     return super().dispatch(request, *args, **kwargs)
+
+    
+    # class ArticleCreateView(CreateView):
+    class ArticleCreateView(LoginRequiredMixin, CreateView):
         model = Article
         template_name = 'article_new.html'
-        fields = ('title', 'body', 'author',)
+        # fields = ('title', 'body', 'author',)
+        fields = ('title', 'body')
+        login_url = 'login'
+
+        def form_valid(self, form):
+            form.instance.author = self.request.user
+            return super().form_valid(form)
         
-## 5.5. adding templates (view template section)
+The test_func method is used by UserPassesTestMixin for our logic. We need to
+override it. In this case we set the variable obj to the current object returned by the
+view using get_object() . Then we say, if the author on the current object matches the
+current user on the webpage (whoever is logged in and trying to make the change),
+then allow it. If false, an error will automatically be thrown.
+
+## 5.5. adding htmls (view template section)
 
 ## 5.6. articles/admin
 
@@ -972,8 +1027,6 @@ register the app in admin
     from django.contrib import admin
     from .models import Article
     admin.site.register(Article)
-
-
 
 # 6. Static
 
