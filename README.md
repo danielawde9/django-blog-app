@@ -11,8 +11,8 @@
   - [2.7. Troubleshooting DB](#27-troubleshooting-db)
 - [3. Templates](#3-templates)
   - [3.1. config/settings.py](#31-configsettingspy)
-  - [3.2. temlpates/base](#32-temlpatesbase)
-  - [3.3. temlpates/home](#33-temlpateshome)
+  - [3.2. templates/base](#32-templatesbase)
+  - [3.3. templates/home](#33-templateshome)
     - [Adding user auth](#adding-user-auth)
   - [3.4. templates/registration/login](#34-templatesregistrationlogin)
   - [3.5. templates/signup](#35-templatessignup)
@@ -38,7 +38,7 @@
   - [4.2. config/urls](#42-configurls)
   - [4.3. pages/urls](#43-pagesurls)
   - [4.4. pages/views](#44-pagesviews)
-  - [4.5. Adding bootstarp to templates html](#45-adding-bootstarp-to-templates-html)
+  - [4.5. Adding bootstarp to templates html (crispy)](#45-adding-bootstarp-to-templates-html-crispy)
   - [4.6. adding and customizing pages (view template section)](#46-adding-and-customizing-pages-view-template-section)
   - [4.7. config/settings](#47-configsettings)
 - [5. Articles App](#5-articles-app)
@@ -230,7 +230,7 @@ make the migration
     (news) $ python manage.py migrate
 
 ## 2.7. Troubleshooting DB
-
+    
     python manage.py makemigrations
     python manage.py migrate --run-syncdb
 
@@ -269,9 +269,9 @@ Add the settings.py directory of the template
     LOGIN_REDIRECT_URL = 'home'
     LOGOUT_REDIRECT_URL = 'home'
 
-## 3.2. temlpates/base
+## 3.2. templates/base
 
-    <!-- temlpates/base.html -->
+    <!-- templates/base.html -->
     <html>
     <head>
         <title>{% block title %}Newspaper App{% endblock title %}</title>
@@ -287,7 +287,7 @@ Add the settings.py directory of the template
     </body>
     </html>
 
-##  3.3. temlpates/home
+##  3.3. templates/home
 
 In our templates file home.html we can use the Django Templating Language’s for a loop to list all the objects in
 object_list Why **object_list** ? This is the name of the variable that ListView returns to us.
@@ -775,7 +775,7 @@ Then we add the path of the `home` to `config/urls.py` that includes the URLs of
         template_name = 'home.html'
 
 
-## 4.5. Adding bootstarp to templates html
+## 4.5. Adding bootstarp to templates html (crispy)
 
 check the code for templates (too big to add here)
 
